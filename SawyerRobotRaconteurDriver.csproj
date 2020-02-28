@@ -18,6 +18,9 @@
     <Reference Include="RobotRaconteurWeb">
       <HintPath>..\..\RobotRaconteurWeb\RobotRaconteurWeb\bin\Debug\netstandard2.1\RobotRaconteurWeb.dll</HintPath>
     </Reference>
+    <Reference Include="RobotRaconteurWeb.StandardRobDefLib">
+      <HintPath>..\..\RobotRaconteurWeb.StandardRobDefLib\bin\Debug\netstandard2.1\RobotRaconteurWeb.StandardRobDefLib.dll</HintPath>
+    </Reference>
     <Reference Include="ros_csharp_interop">
       <HintPath>..\..\..\..\..\..\rosws8\devel_isolated\ros_csharp_interop\lib\ros_csharp_interop.dll</HintPath>
     </Reference>

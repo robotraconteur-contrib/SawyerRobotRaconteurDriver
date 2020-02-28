@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Mono.Options;
 using RobotRaconteurWeb;
+using RobotRaconteurWeb.InfoParser;
 
 namespace SawyerRobotRaconteurDriver
 {

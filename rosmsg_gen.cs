@@ -566,4 +566,76 @@ for (int i=0; i<msg.Length; i++) ROSWrite(writer, msg[i]);
 }
 }
 }
+namespace intera_core_msgs
+{
+[ROSMsgInfo("intera_core_msgs/DigitalIOState","29d0be3859dae81a66b28f167ecec98c","int8 state\nbool isInputOnly\n\nint8 OFF = 0\nint8 ON  = 1\nint8 PRESSED = 1\nint8 UNPRESSED = 0")]
+public class DigitalIOState : ROSMsg
+{
+public string _type => "intera_core_msgs/DigitalIOState";
+public string _md5sum => "29d0be3859dae81a66b28f167ecec98c";
+public string _full_text => "int8 state\nbool isInputOnly\n\nint8 OFF = 0\nint8 ON  = 1\nint8 PRESSED = 1\nint8 UNPRESSED = 0";
+public sbyte state = default;
+public bool isInputOnly = default;
+public static DigitalIOState ROSRead(BinaryReader reader)
+{
+var o = new DigitalIOState();
+o.state = rosmsg_builtin_util.read_sbyte(reader);
+o.isInputOnly = rosmsg_builtin_util.read_bool(reader);
+return o;
+}
+public static DigitalIOState[] ROSReadArray(BinaryReader reader, int count)
+{
+if (count < 0) count = (int)reader.ReadUInt32();
+var o = new DigitalIOState[count];
+for (int i=0; i<count; i++) o[i] = ROSRead(reader);
+return o;
+}
+public static void ROSWrite(BinaryWriter writer, DigitalIOState msg)
+{
+rosmsg_builtin_util.write_sbyte(writer, msg.state);
+rosmsg_builtin_util.write_bool(writer, msg.isInputOnly);
+}
+public static void ROSWriteArray(BinaryWriter writer, DigitalIOState[] msg, int count)
+{
+rosmsg_builtin_util.do_write_count(writer,msg,count);
+for (int i=0; i<msg.Length; i++) ROSWrite(writer, msg[i]);
+}
+}
+}
+namespace intera_core_msgs
+{
+[ROSMsgInfo("intera_core_msgs/DigitalOutputCommand","23f05028c1a699fb83e22401228c3a9e","##the name of the output\nstring name  \n##the value to set output \nbool value   \n")]
+public class DigitalOutputCommand : ROSMsg
+{
+public string _type => "intera_core_msgs/DigitalOutputCommand";
+public string _md5sum => "23f05028c1a699fb83e22401228c3a9e";
+public string _full_text => "##the name of the output\nstring name  \n##the value to set output \nbool value   \n";
+public string name = default;
+public bool value = default;
+public static DigitalOutputCommand ROSRead(BinaryReader reader)
+{
+var o = new DigitalOutputCommand();
+o.name = rosmsg_builtin_util.read_string(reader);
+o.value = rosmsg_builtin_util.read_bool(reader);
+return o;
+}
+public static DigitalOutputCommand[] ROSReadArray(BinaryReader reader, int count)
+{
+if (count < 0) count = (int)reader.ReadUInt32();
+var o = new DigitalOutputCommand[count];
+for (int i=0; i<count; i++) o[i] = ROSRead(reader);
+return o;
+}
+public static void ROSWrite(BinaryWriter writer, DigitalOutputCommand msg)
+{
+rosmsg_builtin_util.write_string(writer, msg.name);
+rosmsg_builtin_util.write_bool(writer, msg.value);
+}
+public static void ROSWriteArray(BinaryWriter writer, DigitalOutputCommand[] msg, int count)
+{
+rosmsg_builtin_util.do_write_count(writer,msg,count);
+for (int i=0; i<msg.Length; i++) ROSWrite(writer, msg[i]);
+}
+}
+}
 }
