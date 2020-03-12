@@ -29,7 +29,7 @@ robot_capabilities:
 - software_reset_errors
 - software_enable
 chains:
-- kin_chain_identifier: robot_arm
+- kin_chain_identifier: right_arm
   H:
   - x: 0.0
     y: 0.0

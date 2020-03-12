@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 using com.robotraconteur.geometry;
 using com.robotraconteur.action;
 using com.robotraconteur.robotics.trajectory;
-using RobotRaconteurWeb.Robot;
+using RobotRaconteurWeb.StandardRobDefLib.Robot;
 
 namespace SawyerRobotRaconteurDriver
 {
@@ -81,7 +81,8 @@ namespace SawyerRobotRaconteurDriver
 
             foreach (var d in _digital_io_names)
             {
-                var sub = _ros_node.subscribe<DigitalIOState>(_ros_ns_prefix + $"robot/digitial_io/{d}/state", 1, msg => _digitital_io_state_cb(d, msg));
+                var sub = _ros_node.subscribe<DigitalIOState>(_ros_ns_prefix + $"robot/digital_io/{d}/state", 1, msg => _digitital_io_state_cb(d, msg));
+                _digital_io_sub.Add(sub);
             }
 
             base._start_robot();
@@ -242,7 +243,7 @@ namespace SawyerRobotRaconteurDriver
         {
             lock(this)
             {
-                _digital_io_states[name] = state.state == 1;
+                _digital_io_states[name] = state.state != 0;
             }
         }
 
