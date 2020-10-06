@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using RobotRaconteurWeb;
+using RobotRaconteur;
 using com.robotraconteur.robotics.robot;
 using System.IO;
 using System.Linq;
@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 using com.robotraconteur.geometry;
 using com.robotraconteur.action;
 using com.robotraconteur.robotics.trajectory;
-using RobotRaconteurWeb.StandardRobDefLib.Robot;
+using RobotRaconteur.Companion.Robot;
 
 namespace SawyerRobotRaconteurDriver
 {
@@ -54,13 +54,31 @@ namespace SawyerRobotRaconteurDriver
 
         protected string[] _digital_io_names = { "right_valve_1a", "right_valve_1b", "right_valve_2a", "right_valve_2b" };
 
+        protected double _position_command_tol = Math.PI * (5.0 / 180.0);
+        protected double _velocity_command_tol = Math.PI * (30.0 / 180.0);
 
-        public SawyerRobot(com.robotraconteur.robotics.robot.RobotInfo robot_info, string ros_ns_prefix = "") : base(robot_info, 7)
+
+        public SawyerRobot(com.robotraconteur.robotics.robot.RobotInfo robot_info, string ros_ns_prefix = "", double? jog_joint_tol = null, long? jog_joint_timeout = null, double? trajectory_error_tol = null) : base(robot_info, 7)
         {
             this._ros_ns_prefix = "";
             if (robot_info.joint_info == null)
             {
                 _joint_names = Enumerable.Range(0, 7).Select(x => $"right_j{x}").ToArray();
+            }
+
+            if (jog_joint_tol != null)
+            {
+                _jog_joint_tol = jog_joint_tol.Value;
+            }
+
+            if (jog_joint_timeout != null)
+            {
+                _jog_joint_timeout = jog_joint_timeout.Value;
+            }
+
+            if (trajectory_error_tol != null)
+            {
+                _trajectory_error_tol = trajectory_error_tol.Value;
             }
         }
 
@@ -137,8 +155,8 @@ namespace SawyerRobotRaconteurDriver
                 v.linear.y = msg.twist.linear.y;
                 v.linear.z = msg.twist.linear.z;
 
-                _endpoint_pose = p;
-                _endpoint_vel = v;
+                _endpoint_pose = new Pose[] { p };
+                _endpoint_vel = new SpatialVelocity[] { v };
             }
         }
 
@@ -211,6 +229,17 @@ namespace SawyerRobotRaconteurDriver
                 {
                     if (_joint_position == null || _joint_position.Length != _joint_count) _joint_position = new double[_joint_count];
                     for (int i = 0; i < _joint_count; i++) _joint_position[i] = joint_states.position[joint_ind[i]];
+                    if (_position_command != null)
+                    {
+                        for (int i=0; i<_joint_count; i++)
+                        {
+                            if (Math.Abs(_position_command[i] - _joint_position[i]) > _position_command_tol)
+                            {
+                                _position_command = null;
+                                break;
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -221,6 +250,18 @@ namespace SawyerRobotRaconteurDriver
                 {
                     if (_joint_velocity == null || _joint_velocity.Length != _joint_count) _joint_velocity = new double[_joint_count];
                     for (int i = 0; i < _joint_count; i++) _joint_velocity[i] = joint_states.velocity[joint_ind[i]];
+
+                    if (_velocity_command != null)
+                    {
+                        for (int i = 0; i < _joint_count; i++)
+                        {
+                            if (Math.Abs(_velocity_command[i] - _joint_velocity[i]) > _velocity_command_tol)
+                            {
+                                _velocity_command = null;
+                                break;
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -285,6 +326,8 @@ namespace SawyerRobotRaconteurDriver
                 msg.names = _joint_names;
                 msg.position = joint_pos_cmd;
                 _joint_command_pub.publish(msg);
+                _position_command = joint_pos_cmd;
+                _velocity_command = null;
                 return;
             }
 
@@ -296,12 +339,14 @@ namespace SawyerRobotRaconteurDriver
                 msg.names = _joint_names;
                 msg.velocity = joint_vel_cmd;
                 _joint_command_pub.publish(msg);
+                _position_command = null;
+                _velocity_command = joint_vel_cmd;
                 return;
             }
         }
         
                 
-        public override Task<Generator2<com.robotraconteur.action.ActionStatusCode>> home(CancellationToken rr_cancel = default)
+        public override Generator2<com.robotraconteur.action.ActionStatusCode> home()
         {
             lock(this)
             {
@@ -311,11 +356,11 @@ namespace SawyerRobotRaconteurDriver
                 }
 
                 var homing_task = new SawyerHomingTask(this);
-                return Task.FromResult<Generator2<com.robotraconteur.action.ActionStatusCode>>(homing_task);
+                return homing_task;
             }
         }
 
-        public override Task<double[]> getf_signal(string signal_name, CancellationToken rr_cancel = default)
+        public override Task<double[]> async_getf_signal(string signal_name, int timeout = -1)
         {
             lock (this)
             {
@@ -340,7 +385,7 @@ namespace SawyerRobotRaconteurDriver
             throw new ArgumentException("Invalid signal name");            
         }
 
-        public override Task setf_signal(string signal_name, double[] value_, CancellationToken rr_cancel = default)
+        public override async Task async_setf_signal(string signal_name, double[] value_, int timeout = -1)
         {
             if (_digital_io_names.Contains(signal_name))
             {
@@ -357,8 +402,7 @@ namespace SawyerRobotRaconteurDriver
                 var msg = new DigitalOutputCommand();
                 msg.name = signal_name;
                 msg.value = value_[0] != 1.0;
-                _digital_io_pub.publish(msg);
-                return Task.FromResult(0);
+                await Task.Run(() => _digital_io_pub.publish(msg));                
             }
 
             throw new ArgumentException("Unknown signal_name");
@@ -389,18 +433,18 @@ namespace SawyerRobotRaconteurDriver
             this.parent = parent;
         }
 
-        public Task Abort(CancellationToken cancel = default)
+        public async Task AsyncAbort(int timeout = -1)
         {
-            parent._sawyer_send_disable();
-            return Task.FromResult(0);
+            await Task.Run(() => parent._sawyer_send_disable());
+            
         }
 
-        public async Task Close(CancellationToken cancel = default)
+        public Task AsyncClose(int timeout = -1)
         {
-            await parent.halt();
+            return parent.async_halt();
         }
 
-        public async Task<ActionStatusCode> Next(CancellationToken cancel = default)
+        public async Task<ActionStatusCode> AsyncNext(int timeout = -1)
         {
             lock(this)
             {
@@ -429,8 +473,8 @@ namespace SawyerRobotRaconteurDriver
                         var homing_command = new HomingCommand();
                         homing_command.name = parent._sawyer_joint_names;
                         homing_command.command = Enumerable.Repeat(0, parent._sawyer_joint_count).ToArray();
-                        parent._homing_command_pub.publish(homing_command);
-                        await Task.Delay(500);
+                        await Task.Run(() => parent._homing_command_pub.publish(homing_command));
+                        Thread.Sleep(500);
                     }
 
                     if (send_downsample > 10) send_downsample = 0;
@@ -439,7 +483,7 @@ namespace SawyerRobotRaconteurDriver
                         var homing_command = new HomingCommand();
                         homing_command.name = parent._sawyer_joint_names;
                         homing_command.command = Enumerable.Repeat(2, parent._sawyer_joint_count).ToArray();
-                        parent._homing_command_pub.publish(homing_command);
+                        await Task.Run(() => parent._homing_command_pub.publish(homing_command));
                     }
 
                     await Task.Delay(100);
@@ -471,9 +515,23 @@ namespace SawyerRobotRaconteurDriver
             }
         }
 
-        public Task<ActionStatusCode[]> NextAll(CancellationToken cancel = default)
+        public ActionStatusCode Next()
         {
-            // Not called on server
+            throw new NotImplementedException();
+        }
+
+        public void Abort()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Close()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ActionStatusCode[] NextAll()
+        {
             throw new NotImplementedException();
         }
 
