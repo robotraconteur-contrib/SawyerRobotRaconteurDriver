@@ -29,16 +29,12 @@ namespace SawyerRobotRaconteurDriver
 
             bool shouldShowHelp = false;
             string robot_info_file = null;
-            double? jog_joint_tol = null;
-            long? jog_joint_timeout = null;
             double? trajectory_error_tol = null;
             bool wait_signal = false;
 
             var options = new OptionSet {
                 { "robot-info-file=", "the robot info YAML file", n => robot_info_file = n },
                 { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
-                {"jog-joint-tol=", "jog joint tolerance in degrees", (double n) => jog_joint_tol = (Math.PI/180.0)*n},
-                {"jog-joint-timeout=", "jog joint timeout in milliseconds", (long n) => jog_joint_timeout = n },
                 {"trajectory-error-tol=", "trajectory error tolerance in degrees", (double n) => trajectory_error_tol = (Math.PI/180.0)*n },
                 {"wait-signal", "wait for POSIX sigint or sigkill to exit", n=> wait_signal = n!=null}
             };
@@ -81,14 +77,12 @@ namespace SawyerRobotRaconteurDriver
                 ros_csharp_interop.ros_csharp_interop.init_ros(args, "sawyer_robotraconteur_driver", false);
 
 
-                using (var robot = new SawyerRobot(robot_info.Item1, "", jog_joint_tol, jog_joint_timeout, trajectory_error_tol))
+                using (var robot = new SawyerRobot(robot_info.Item1, "", trajectory_error_tol))
                 {
                     robot._start_robot();
                     using (var node_setup = new ServerNodeSetup("sawyer_robot", 58653, args))
                     {
-                        RobotRaconteurNode.s.ThreadPoolCount = 64;
-
-                        RobotRaconteurNode.s.RegisterService("sawyer", "com.robotraconteur.robotics.robot", robot);
+                        RobotRaconteurNode.s.RegisterService("robot", "com.robotraconteur.robotics.robot", robot);
 
                         if (!wait_signal)
                         {
@@ -108,8 +102,6 @@ namespace SawyerRobotRaconteurDriver
 
                             Console.WriteLine("Got a {0} signal, exiting", signals[which].Signum);
                         }
-
-                        RobotRaconteurNode.s.Shutdown();
                     }
                 }
             }

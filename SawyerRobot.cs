@@ -58,22 +58,12 @@ namespace SawyerRobotRaconteurDriver
         protected double _velocity_command_tol = Math.PI * (30.0 / 180.0);
 
 
-        public SawyerRobot(com.robotraconteur.robotics.robot.RobotInfo robot_info, string ros_ns_prefix = "", double? jog_joint_tol = null, long? jog_joint_timeout = null, double? trajectory_error_tol = null) : base(robot_info, 7)
+        public SawyerRobot(com.robotraconteur.robotics.robot.RobotInfo robot_info, string ros_ns_prefix = "", double? trajectory_error_tol = null) : base(robot_info, 7)
         {
             this._ros_ns_prefix = "";
             if (robot_info.joint_info == null)
             {
                 _joint_names = Enumerable.Range(0, 7).Select(x => $"right_j{x}").ToArray();
-            }
-
-            if (jog_joint_tol != null)
-            {
-                _jog_joint_tol = jog_joint_tol.Value;
-            }
-
-            if (jog_joint_timeout != null)
-            {
-                _jog_joint_timeout = jog_joint_timeout.Value;
             }
 
             if (trajectory_error_tol != null)
@@ -85,7 +75,9 @@ namespace SawyerRobotRaconteurDriver
         
 
         public override void _start_robot()
-        {  
+        {
+
+            _operational_mode = RobotOperationalMode.cobot;
             _ros_node = new ROSNode();
             _joint_states_sub = _ros_node.subscribe<ros_csharp_interop.rosmsg.gen.sensor_msgs.JointState>(_ros_ns_prefix + "robot/joint_states", 1, _joint_state_cb); ;
             _robot_state_sub = _ros_node.subscribe<RobotAssemblyState>(_ros_ns_prefix + "robot/state", 1, _robot_state_cb); ;
@@ -401,8 +393,9 @@ namespace SawyerRobotRaconteurDriver
 
                 var msg = new DigitalOutputCommand();
                 msg.name = signal_name;
-                msg.value = value_[0] != 1.0;
-                await Task.Run(() => _digital_io_pub.publish(msg));                
+                msg.value = value_[0] == 1.0;
+                await Task.Run(() => _digital_io_pub.publish(msg));
+                return;
             }
 
             throw new ArgumentException("Unknown signal_name");
