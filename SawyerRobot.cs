@@ -58,17 +58,12 @@ namespace SawyerRobotRaconteurDriver
         protected double _velocity_command_tol = Math.PI * (30.0 / 180.0);
 
 
-        public SawyerRobot(com.robotraconteur.robotics.robot.RobotInfo robot_info, string ros_ns_prefix = "", double? trajectory_error_tol = null) : base(robot_info, 7)
+        public SawyerRobot(com.robotraconteur.robotics.robot.RobotInfo robot_info, string ros_ns_prefix = "") : base(robot_info, 7)
         {
             this._ros_ns_prefix = "";
             if (robot_info.joint_info == null)
             {
                 _joint_names = Enumerable.Range(0, 7).Select(x => $"right_j{x}").ToArray();
-            }
-
-            if (trajectory_error_tol != null)
-            {
-                _trajectory_error_tol = trajectory_error_tol.Value;
             }
         }
 
