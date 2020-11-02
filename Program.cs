@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using BaxterRobotRaconteurDriver;
 using com.robotraconteur.geometry;
 using com.robotraconteur.identifier;
 using com.robotraconteur.robotics.robot;
@@ -36,12 +35,14 @@ namespace SawyerRobotRaconteurDriver
             string robot_info_file = null;            
             bool wait_signal = false;
             bool electric_gripper = false;
+            bool vacuum_gripper = false;
             string gripper_info_file = null;
 
             var options = new OptionSet {
                 { "robot-info-file=", "the robot info YAML file", n => robot_info_file = n },
                 { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
                 { "electric-gripper", "rethink electric gripper is attached", n=>electric_gripper = n!=null },
+                { "vacuum-gripper", "rethink vacuum gripper is attached", n=>vacuum_gripper = n!=null },
                 { "gripper-info-file=", "gripper info file", n=>gripper_info_file = n },
                 {"wait-signal", "wait for POSIX sigint or sigkill to exit", n=> wait_signal = n!=null}
             };
@@ -76,10 +77,16 @@ namespace SawyerRobotRaconteurDriver
                 return 1;
             }
 
+            if (vacuum_gripper && electric_gripper)
+            {
+                throw new ArgumentException("--vacuum-gripper and --electric-gripper are mutually exclusive");
+            }
+
             Tuple<RobotInfo, LocalIdentifierLocks> robot_info = null;
             Tuple<ToolInfo, LocalIdentifierLocks> tool_info = null;
             SawyerRobot robot = null;
-            SawyerElectricGripper gripper = null;
+            ISawyerGripper gripper = null;
+            
 
             try
             { 
@@ -88,7 +95,7 @@ namespace SawyerRobotRaconteurDriver
 
                 ros_csharp_interop.ros_csharp_interop.init_ros(args, "sawyer_robotraconteur_driver", false);
 
-                if (electric_gripper)
+                if (electric_gripper || vacuum_gripper)
                 {
                     tool_info = ToolInfoParser.LoadToolInfoYamlWithIdentifierLocks(gripper_info_file);
                     tool_info.Item1.device_info.parent_device = robot_info.Item1.device_info.device;
@@ -100,9 +107,14 @@ namespace SawyerRobotRaconteurDriver
                 }
 
                 robot = new SawyerRobot(robot_info.Item1, "");
-                if (tool_info != null)
+                if (electric_gripper)
                 {
                     gripper = new SawyerElectricGripper(tool_info.Item1, "right_gripper", "");
+                    gripper._start_tool();
+                }
+                else if (vacuum_gripper)
+                {
+                    gripper = new SawyerVacuumGripper(tool_info.Item1, "right_vacuum_gripper", "");
                     gripper._start_tool();
                 }
 

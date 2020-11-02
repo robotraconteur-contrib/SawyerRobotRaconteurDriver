@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace SawyerRobotRaconteurDriver
 {
-    public class SawyerElectricGripper : AbstractTool, ISawyerGripper
+    public class SawyerVacuumGripper : AbstractTool, ISawyerGripper
     {
         protected ROSNode _ros_node;
         protected string _ros_ns_prefix;
@@ -25,13 +25,10 @@ namespace SawyerRobotRaconteurDriver
         protected double _last_command;
         protected string _tool_name;
 
-        const double MAX_POSITION = 0.041667;
+        const double MAX_POSITION = 1;
         const double MIN_POSITION = 0.0;
-        const double MAX_VELOCITY = 3.0;
-        const double MIN_VELOCITY = 0.15;
-        const double POSITION_MARGIN = MAX_POSITION * 0.05;
-        
-        public SawyerElectricGripper(ToolInfo tool_info, string ros_tool_name, string ros_ns_prefix = "") : base(tool_info)
+                
+        public SawyerVacuumGripper(ToolInfo tool_info, string ros_tool_name, string ros_ns_prefix = "") : base(tool_info)
         {
             this._ros_ns_prefix = "";
             this._ros_tool_name = ros_tool_name;
@@ -96,15 +93,10 @@ namespace SawyerRobotRaconteurDriver
                     o.sensor = new double[0];
                 }
                 else
-                {
-                    o.position = double.Parse(_get_signal_or_default("position_m","0"));
-                    _position = o.position;
-                    o.sensor = new double[] { double.Parse(_get_signal_or_default("force_response_m", "0")) };
+                {                    
+                    o.sensor = new double[] { double.Parse(_get_signal_or_default("right_vacuum_gripper_tip_object_kg", "0")) };
 
                     bool has_error = bool.Parse(_get_signal_or_default("has_error", "true"));
-                    bool is_calibrated = bool.Parse(_get_signal_or_default("is_calibrated", "false"));
-                    bool is_moving = bool.Parse(_get_signal_or_default("is_moving", "false"));                    
-                    bool ready = is_calibrated && !has_error && !is_moving;
                     bool is_gripping = bool.Parse(_get_signal_or_default("is_gripping", "false"));
 
                     uint f = 0;
@@ -116,38 +108,27 @@ namespace SawyerRobotRaconteurDriver
                     {
                         f |= (uint)ToolStateFlags.enabled;
                     }
-                    if (ready)
-                    {
-                        f |= (uint)ToolStateFlags.ready;
-                    }
-                    if (is_calibrated)
-                    {
-                        f |= (uint)ToolStateFlags.homed;
-                    }
-                    else
-                    {
-                        f |= (uint)ToolStateFlags.requires_homing;
-                    }
+                    
+                    f |= (uint)ToolStateFlags.ready;
+                    
+                    
                     if (is_gripping)
                     {
                         f |= (uint)ToolStateFlags.gripping;
                     }
-                    if (is_moving)
+                    
+                    if (is_gripping)
                     {
-                        f |= (uint)ToolStateFlags.actuating;
-                    }
-                    if (_position < POSITION_MARGIN)
-                    {
+                        o.position = 1;
+                        _position = o.position;
                         f |= (uint)ToolStateFlags.closed;
-                    }
-                    else if (_position > MAX_POSITION - POSITION_MARGIN)
-                    {
-                        f |= (uint)ToolStateFlags.opened;
                     }
                     else
                     {
-                        f |= (uint)ToolStateFlags.between;
-                    }
+                        o.position = 0;
+                        _position = o.position;
+                        f |= (uint)ToolStateFlags.opened;
+                    }                    
                     o.tool_state_flags = f;
                 }
 
@@ -173,39 +154,30 @@ namespace SawyerRobotRaconteurDriver
             return o;
         }
 
-        public override void home()
+        
+        public override void close()
         {
             ros_csharp_interop.rosmsg.ROSTime t;
             lock (this)
             {
                 t = _now_ros();
             }
+
             var cmd1 = new IOComponentCommand();
             cmd1.time = t;
             cmd1.op = "set";
-            cmd1.args = "{\"signals\": {\"calibrate\": {\"data\": [true], \"format\": {\"type\": \"bool\" }}}}";
+            cmd1.args = "{\"signals\": {\"cmd_grip\": {\"data\": [true], \"format\": {\"type\": \"bool\"}}}}";
+
             _gripper_command_pub.publish(cmd1);
 
-            Thread.Sleep(2500);
-        }
-
-        public override void close()
-        {
-            setf_command(MIN_POSITION);
+            lock (this)
+            {
+                _command = 1;
+            }
         }
 
         public override void open()
         {
-            setf_command(MAX_POSITION);
-        }
-
-        public override void setf_command(double command)
-        {
-            if (command < MIN_POSITION || command > MAX_POSITION)
-            {
-                throw new ArgumentException($"Command must be between {MIN_POSITION} and {MAX_POSITION}");
-            }
-
             ros_csharp_interop.rosmsg.ROSTime t;
             lock (this)
             {
@@ -215,16 +187,17 @@ namespace SawyerRobotRaconteurDriver
             var cmd1 = new IOComponentCommand();
             cmd1.time = t;
             cmd1.op = "set";
-            cmd1.args = "{\"signals\": {\"position_m\": {\"data\": [" + command.ToString() + "], \"format\": {\"type\": \"float\"}}}}";
-  
+            cmd1.args = "{\"signals\": {\"cmd_grip\": {\"data\": [false], \"format\": {\"type\": \"bool\"}}}}";
+
             _gripper_command_pub.publish(cmd1);
 
-            lock(this)
+            lock (this)
             {
-                _command = command;
+                _command = 0;
             }
         }
 
+        
         public override void Dispose()
         {
             base.Dispose();

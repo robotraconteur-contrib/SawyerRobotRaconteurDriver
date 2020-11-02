@@ -1,0 +1,42 @@
+﻿device_info:
+  device:
+    name: sawyer_vacuum_gripper
+  manufacturer:
+    name: Rethink_Robotics
+    uuid: 82d22757-bbfc-44ca-9edb-8824c4a1943e
+  model:
+    name: Sawyer_Vacuum_Gripper
+    uuid: a03ce776-942f-463c-be77-06c7c0e340c1
+  user_description: Rethink Robotics Sawyer Vacuum Gripper
+  serial_number: 123456789
+  device_classes:
+    - class_identifier:
+        name: gripper
+        uuid: ee974ee5-a5de-49c4-8fe6-831df8f2821c
+      subclasses: 
+        - vacuum
+  implemented_types:
+    - com.robotraconteur.robotics.tool.Tool
+tool_type: vacuum_gripper
+tool_capabilities:
+- open_close_command
+tcp:
+  translation:
+    x: 0
+    y: 0
+    z: 0.0585
+  rotation:
+    x: 0
+    y: 0
+    z: 0
+    w: 1
+close_position: 1
+open_position: 0
+command_min: 0
+command_max: 1
+command_close: 1
+command_open: 0
+sensor_min:
+  - 0
+sensor_max:
+  - 5
