@@ -23,6 +23,7 @@ using Mono.Options;
 using Mono.Unix;
 using RobotRaconteur;
 using RobotRaconteur.Companion.InfoParser;
+using RobotRaconteur.Companion.Util;
 
 namespace SawyerRobotRaconteurDriver
 {
