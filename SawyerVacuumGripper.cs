@@ -1,5 +1,7 @@
 ﻿using com.robotraconteur.robotics.tool;
+using RobotRaconteur;
 using RobotRaconteur.Companion.Robot;
+using RobotRaconteur.Companion.Util;
 using ros_csharp_interop;
 using ros_csharp_interop.rosmsg.gen.intera_core_msgs;
 using System;
@@ -81,6 +83,7 @@ namespace SawyerRobotRaconteurDriver
             lock (this)
             {
                 var o = new ToolState();
+                o.ts = DateTimeUtil.TimeSpec3Now(RobotRaconteurNode.s);
                 o.seqno = _state_seqno;
                 o.command = _last_command;
 

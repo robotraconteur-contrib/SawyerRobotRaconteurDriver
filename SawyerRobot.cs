@@ -65,6 +65,8 @@ namespace SawyerRobotRaconteurDriver
             {
                 _joint_names = Enumerable.Range(0, 7).Select(x => $"right_j{x}").ToArray();
             }
+
+            this._trajectory_error_tol = 1000;
         }
 
         
