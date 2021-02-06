@@ -126,10 +126,12 @@ namespace SawyerRobotRaconteurDriver
                 robot._start_robot();
                 using (var node_setup = new ServerNodeSetup("sawyer_robot", 58653, args))
                 {
-                    RobotRaconteurNode.s.RegisterService("robot", "com.robotraconteur.robotics.robot", robot);
+                    var robot_service_ctx = RobotRaconteurNode.s.RegisterService("robot", "com.robotraconteur.robotics.robot", robot);
+                    robot_service_ctx.SetServiceAttributes(AttributesUtil.GetDefaultServiceAtributesFromDeviceInfo(robot_info.Item1.device_info));
                     if (gripper != null)
                     {
-                        RobotRaconteurNode.s.RegisterService("gripper", "com.robotraconteur.robotics.tool", gripper);
+                        var tool_service_ctx = RobotRaconteurNode.s.RegisterService("gripper", "com.robotraconteur.robotics.tool", gripper);
+                        tool_service_ctx.SetServiceAttributes(AttributesUtil.GetDefaultServiceAtributesFromDeviceInfo(tool_info.Item1.device_info));
                     }
 
                     if (!wait_signal)
