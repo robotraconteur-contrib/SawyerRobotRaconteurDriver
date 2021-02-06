@@ -102,7 +102,11 @@ namespace SawyerRobotRaconteurDriver
                     tool_info.Item1.device_info.parent_device = robot_info.Item1.device_info.device;
                     tool_info.Item1.device_info.device_origin_pose = new NamedPose
                     {
-                        parent_frame = new Identifier { name = "right_hand" },
+                        parent_frame = new Identifier { name = "right_hand", uuid = new com.robotraconteur.uuid.UUID
+                        {
+                            uuid_bytes = new byte[16]
+                        }
+                        },
                         pose = new Pose { orientation = new Quaternion { w = 1 } }
                     };
                 }
