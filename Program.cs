@@ -33,18 +33,22 @@ namespace SawyerRobotRaconteurDriver
         {
 
             bool shouldShowHelp = false;
-            string robot_info_file = null;            
+            string robot_info_file = null;
+            string robot_name = null;
             bool wait_signal = false;
             bool electric_gripper = false;
             bool vacuum_gripper = false;
             string gripper_info_file = null;
+            string gripper_name = null;
 
             var options = new OptionSet {
                 { "robot-info-file=", "the robot info YAML file", n => robot_info_file = n },
+                { "robot-name=", "override the robot device name", n=>robot_name = n },
                 { "h|help", "show this message and exit", h => shouldShowHelp = h != null },
                 { "electric-gripper", "rethink electric gripper is attached", n=>electric_gripper = n!=null },
                 { "vacuum-gripper", "rethink vacuum gripper is attached", n=>vacuum_gripper = n!=null },
                 { "gripper-info-file=", "gripper info file", n=>gripper_info_file = n },
+                { "gripper-name=", "override the gripper device name", n=>gripper_name = n },
                 {"wait-signal", "wait for POSIX sigint or sigkill to exit", n=> wait_signal = n!=null}
             };
             
@@ -92,13 +96,13 @@ namespace SawyerRobotRaconteurDriver
             try
             { 
 
-                robot_info = RobotInfoParser.LoadRobotInfoYamlWithIdentifierLocks(robot_info_file);            
-
+                robot_info = RobotInfoParser.LoadRobotInfoYamlWithIdentifierLocks(robot_info_file, robot_name);
+                                
                 ros_csharp_interop.ros_csharp_interop.init_ros(args, "sawyer_robotraconteur_driver", false);
 
                 if (electric_gripper || vacuum_gripper)
                 {
-                    tool_info = ToolInfoParser.LoadToolInfoYamlWithIdentifierLocks(gripper_info_file);
+                    tool_info = ToolInfoParser.LoadToolInfoYamlWithIdentifierLocks(gripper_info_file, gripper_name);
                     tool_info.Item1.device_info.parent_device = robot_info.Item1.device_info.device;
                     tool_info.Item1.device_info.device_origin_pose = new NamedPose
                     {
