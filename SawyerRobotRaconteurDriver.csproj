@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <Reference Include="ros_csharp_interop">
-      <HintPath>..\..\..\..\..\..\rosws8\devel_isolated\ros_csharp_interop\lib\ros_csharp_interop.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\ws\rosws8\devel_isolated\ros_csharp_interop\lib\ros_csharp_interop.dll</HintPath>
     </Reference>
   </ItemGroup>
 
