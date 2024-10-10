@@ -29,6 +29,10 @@ jobs:
         repository: 'johnwason/ros_csharp_interop'
         path: ros_csharp_interop
     - run: ln -s SawyerRobotRaconteurDriver/Dockerfile Dockerfile
+    - name: qemu setup
+      if: ${{ matrix.platform.name == 'arm64' || matrix.platform.name == 'armv7' }}
+      run: |
+        sudo apt install -y qemu-user-static binfmt-support
     - name: Build Docker image
       run: docker build -t wasontech/sawyer_robotraconteur_driver --platform ${{ matrix.platform.platform }} .
     - name: archive docker image
