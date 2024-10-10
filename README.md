@@ -12,6 +12,20 @@ It is highly recommended that the docker image be used. See below for instructio
 
 Example driver clients are in the `examples/` directory.
 
+## Connection Info
+
+The default connection information is as follows. These details may be changed using `--robotraconteur-*` command
+line options when starting the service. Also see the
+[Robot Raconteur Service Browser](https://github.com/robotraconteur/RobotRaconteur_ServiceBrowser) to detect
+services on the network.
+
+- URL: `rr+tcp://localhost:58653?service=robot`
+- Device Name: `sawyer_robot`
+- Node Name: `sawyer_robot`
+- Service Name: `robot`
+- Root Object Type:
+  - `com.robotraconteur.robotics.robot.Robot`
+
 ## ROS Settings
 
 The Sawyer robot acts as a ROS master on the network. Before starting the driver, the following environmental variables
