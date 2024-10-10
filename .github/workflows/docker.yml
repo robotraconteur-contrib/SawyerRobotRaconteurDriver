@@ -1,0 +1,45 @@
+name: docker
+
+on:
+  push:
+  pull_request:
+  release:
+    types:
+    - created
+  workflow_dispatch:
+
+jobs:
+  build-docker:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+        - name: amd64
+          platform: linux/amd64
+        - name: arm64
+          platform: linux/arm64
+        # - name: armv7
+        #   platform: linux/arm/v7
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: SawyerRobotRaconteurDriver
+    - uses: actions/checkout@v4
+      with:
+        repository: 'johnwason/ros_csharp_interop'
+        path: ros_csharp_interop
+    - run: ln -s SawyerRobotRaconteurDriver/Dockerfile Dockerfile
+    - name: qemu setup
+      if: ${{ matrix.platform.name == 'arm64' || matrix.platform.name == 'armv7' }}
+      run: |
+        sudo apt install -y qemu-user-static binfmt-support
+    - name: Build Docker image
+      run: docker build -t wasontech/sawyer_robotraconteur_driver --platform ${{ matrix.platform.platform }} .
+    - name: archive docker image
+      run: docker save wasontech/sawyer_robotraconteur_driver | gzip > wasontech_sawyer_robotraconteur_driver.tar.gz
+    - name: upload docker image
+      uses: actions/upload-artifact@v4
+      with:
+        name: wasontech_sawyer_robotraconteur_driver_${{ matrix.platform.name }}
+        path: wasontech_sawyer_robotraconteur_driver.tar.gz
