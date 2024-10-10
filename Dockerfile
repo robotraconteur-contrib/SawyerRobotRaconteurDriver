@@ -55,6 +55,9 @@ RUN cd SawyerRobotRaconteurDriver \
 
 COPY ./SawyerRobotRaconteurDriver/config/*.yml /config/
 
+RUN rm -rf /app && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
 ENV ROBOT_INFO_FILE=/config/sawyer_robot_default_config.yml
 ENV ROS_MASTER_URI=http://127.0.0.1:11311
 ENV ROS_IP=127.0.0.1
