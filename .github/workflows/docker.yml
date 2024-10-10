@@ -18,8 +18,8 @@ jobs:
           platform: linux/amd64
         - name: arm64
           platform: linux/arm64
-        - name: armv7
-          platform: linux/arm/v7
+        # - name: armv7
+        #   platform: linux/arm/v7
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
