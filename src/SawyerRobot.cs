@@ -510,6 +510,11 @@ namespace SawyerRobotRaconteurDriver
             throw new NotImplementedException();
         }
 
+        public bool TryNext(out ActionStatusCode value)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Abort()
         {
             throw new NotImplementedException();
