@@ -24,6 +24,7 @@ using Mono.Unix;
 using RobotRaconteur;
 using RobotRaconteur.Companion.InfoParser;
 using RobotRaconteur.Companion.Util;
+using DrekarLaunchProcess;
 
 namespace SawyerRobotRaconteurDriver
 {
@@ -35,7 +36,6 @@ namespace SawyerRobotRaconteurDriver
             bool shouldShowHelp = false;
             string robot_info_file = null;
             string robot_name = null;
-            bool wait_signal = false;
             bool electric_gripper = false;
             bool vacuum_gripper = false;
             string gripper_info_file = null;
@@ -48,8 +48,7 @@ namespace SawyerRobotRaconteurDriver
                 { "electric-gripper", "rethink electric gripper is attached", n=>electric_gripper = n!=null },
                 { "vacuum-gripper", "rethink vacuum gripper is attached", n=>vacuum_gripper = n!=null },
                 { "gripper-info-file=", "gripper info file", n=>gripper_info_file = n },
-                { "gripper-name=", "override the gripper device name", n=>gripper_name = n },
-                {"wait-signal", "wait for POSIX sigint or sigkill to exit", n=> wait_signal = n!=null}
+                { "gripper-name=", "override the gripper device name", n=>gripper_name = n }
             };
             
             List<string> extra;
@@ -138,23 +137,13 @@ namespace SawyerRobotRaconteurDriver
                         tool_service_ctx.SetServiceAttributes(AttributesUtil.GetDefaultServiceAtributesFromDeviceInfo(tool_info.Item1.device_info));
                     }
 
-                    if (!wait_signal)
-                    {
-                        Console.WriteLine("Press enter to exit");
-                        Console.ReadKey();
-                    }
-                    else
-                    {
-                        UnixSignal[] signals = new UnixSignal[]{
-                            new UnixSignal (Mono.Unix.Native.Signum.SIGINT),
-                            new UnixSignal (Mono.Unix.Native.Signum.SIGTERM),
-                        };
+                    
 
-                        Console.WriteLine("Press Ctrl-C to exit");
-                        // block until a SIGINT or SIGTERM signal is generated.
-                        int which = UnixSignal.WaitAny(signals, -1);
+                    Console.WriteLine("Press Ctrl-C to exit");
 
-                        Console.WriteLine("Got a {0} signal, exiting", signals[which].Signum);
+                    using (var wait_for_exit = new CWaitForExit())
+                    {
+                        wait_for_exit.WaitForExit();
                     }
                 }
                 
