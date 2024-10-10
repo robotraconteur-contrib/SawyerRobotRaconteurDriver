@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29709.97
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SawyerRobotRaconteurDriver", "SawyerRobotRaconteurDriver.csproj", "{F9A57696-65B6-44D8-8893-95387EEB496F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SawyerRobotRaconteurDriver", "src/SawyerRobotRaconteurDriver.csproj", "{F9A57696-65B6-44D8-8893-95387EEB496F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
