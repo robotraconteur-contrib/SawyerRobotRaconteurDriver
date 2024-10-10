@@ -4,7 +4,7 @@ WORKDIR /app
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update && apt install wget sudo software-properties-common curl cmake g++ build-essential ninja-build \
-    autoconf automake libtool bison libpcre3-dev -y
+    autoconf automake libtool bison libpcre3-dev ca-certificates -y
 RUN sudo add-apt-repository ppa:robotraconteur/ppa -y \
     && sudo apt-get update \
     && sudo apt-get install librobotraconteur-net-native -y
