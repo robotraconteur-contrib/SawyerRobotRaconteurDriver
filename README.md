@@ -50,6 +50,8 @@ The following command line arguments are available:
 * `--gripper-info-file=` - The gripper info file. Info files are available in the `config/` directory. See [tool info file documentation](https://github.com/robotraconteur/robotraconteur_standard_robdef/blob/master/docs/info_files/tool.md)
 * `--gripper-name=` - Override the gripper device name. Defaults to `sawyer_electric_gripper` or `sawyer_vacuum_gripper`.
 
+The [common Robot Raconteur node options](https://github.com/robotraconteur/robotraconteur/wiki/Command-Line-Options) are also available.
+
 ## Running With Docker 
 
 Docker is the recommended way to run the driver. Building and running can be complicated due to the dependencies on ROS and C\#.
