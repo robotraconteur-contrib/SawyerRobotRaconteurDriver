@@ -52,7 +52,7 @@ The following command line arguments are available:
 
 The [common Robot Raconteur node options](https://github.com/robotraconteur/robotraconteur/wiki/Command-Line-Options) are also available.
 
-## Running With Docker 
+## Running With Docker
 
 Docker is the recommended way to run the driver. Building and running can be complicated due to the dependencies on ROS and C\#.
 

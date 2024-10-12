@@ -1,4 +1,4 @@
-﻿// Copyright 2020 Rensselaer Polytechnic Institute
+// Copyright 2020 Rensselaer Polytechnic Institute
 //                Wason Technology, LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +50,7 @@ namespace SawyerRobotRaconteurDriver
                 { "gripper-info-file=", "gripper info file", n=>gripper_info_file = n },
                 { "gripper-name=", "override the gripper device name", n=>gripper_name = n }
             };
-            
+
             List<string> extra;
             try
             {
@@ -90,13 +90,13 @@ namespace SawyerRobotRaconteurDriver
             Tuple<ToolInfo, LocalIdentifierLocks> tool_info = null;
             SawyerRobot robot = null;
             ISawyerGripper gripper = null;
-            
+
 
             try
-            { 
+            {
 
                 robot_info = RobotInfoParser.LoadRobotInfoYamlWithIdentifierLocks(robot_info_file, robot_name);
-                                
+
                 ros_csharp_interop.ros_csharp_interop.init_ros(args, "sawyer_robotraconteur_driver", false);
 
                 if (electric_gripper || vacuum_gripper)
@@ -105,10 +105,13 @@ namespace SawyerRobotRaconteurDriver
                     tool_info.Item1.device_info.parent_device = robot_info.Item1.device_info.device;
                     tool_info.Item1.device_info.device_origin_pose = new NamedPose
                     {
-                        parent_frame = new Identifier { name = "right_hand", uuid = new com.robotraconteur.uuid.UUID
+                        parent_frame = new Identifier
                         {
-                            uuid_bytes = new byte[16]
-                        }
+                            name = "right_hand",
+                            uuid = new com.robotraconteur.uuid.UUID
+                            {
+                                uuid_bytes = new byte[16]
+                            }
                         },
                         pose = new Pose { orientation = new Quaternion { w = 1 } }
                     };
@@ -137,7 +140,7 @@ namespace SawyerRobotRaconteurDriver
                         tool_service_ctx.SetServiceAttributes(AttributesUtil.GetDefaultServiceAtributesFromDeviceInfo(tool_info.Item1.device_info));
                     }
 
-                    
+
 
                     Console.WriteLine("Press Ctrl-C to exit");
 
@@ -146,7 +149,7 @@ namespace SawyerRobotRaconteurDriver
                         wait_for_exit.WaitForExit();
                     }
                 }
-                
+
             }
             finally
             {

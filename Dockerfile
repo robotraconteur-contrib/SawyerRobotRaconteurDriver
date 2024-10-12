@@ -32,7 +32,7 @@ RUN mkdir -p swig_build_dir \
     && make \
     && sudo make install
 
-    
+
 ENV PATH="${PATH}:/opt/ros/noetic/bin"
 ENV ROS_DISTRO=noetic
 ENV ROS_PYTHON_VERSION=3
@@ -40,7 +40,7 @@ ENV ROS_ETC_DIR=/opt/ros/noetic/etc/ros
 ENV ROS_ROOT=/opt/ros/noetic/share/ros
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/ros/noetic/lib/x86_64-linux-gnu:/opt/ros/noetic/lib:/opt/ros/noetic/lib/python3/dist-packages:/usr/local/lib"
 ENV CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}:/opt/ros/noetic"
-    
+
 COPY ./ros_csharp_interop /app/ros_csharp_interop
 
 RUN cd ros_csharp_interop \

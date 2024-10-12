@@ -1,4 +1,4 @@
-﻿using com.robotraconteur.robotics.tool;
+using com.robotraconteur.robotics.tool;
 using RobotRaconteur;
 using RobotRaconteur.Companion.Robot;
 using RobotRaconteur.Companion.Util;
@@ -29,7 +29,7 @@ namespace SawyerRobotRaconteurDriver
 
         const double MAX_POSITION = 1;
         const double MIN_POSITION = 0.0;
-                
+
         public SawyerVacuumGripper(ToolInfo tool_info, string ros_tool_name, string ros_ns_prefix = "") : base(tool_info)
         {
             this._ros_ns_prefix = "";
@@ -48,8 +48,8 @@ namespace SawyerRobotRaconteurDriver
 
         private void _gripper_state_cb(IODeviceStatus obj)
         {
-            lock(this)
-            {                
+            lock (this)
+            {
                 _gripper_current_state = obj;
                 _last_gripper_state = _stopwatch.ElapsedMilliseconds;
                 if (_gripper_current_signals == null)
@@ -70,12 +70,12 @@ namespace SawyerRobotRaconteurDriver
 
         private string _get_signal_or_default(string name, string default_)
         {
-            if(!_gripper_current_signals.TryGetValue(name, out var v1))
+            if (!_gripper_current_signals.TryGetValue(name, out var v1))
             {
                 return default_;
             }
 
-            return v1;            
+            return v1;
         }
 
         protected override void _fill_state(long now, out ToolState rr_tool_state)
@@ -87,16 +87,16 @@ namespace SawyerRobotRaconteurDriver
                 o.seqno = _state_seqno;
                 o.command = _last_command;
 
-                if (_gripper_current_state == null || _gripper_current_signals == null 
-                    // TODO: Gripper isn't publishing unless state changes?
-                    //|| (now - _last_gripper_state > 2000)
+                if (_gripper_current_state == null || _gripper_current_signals == null
+                // TODO: Gripper isn't publishing unless state changes?
+                //|| (now - _last_gripper_state > 2000)
                 )
                 {
                     o.tool_state_flags = (uint)ToolStateFlags.communication_failure;
                     o.sensor = new double[0];
                 }
                 else
-                {                    
+                {
                     o.sensor = new double[] { double.Parse(_get_signal_or_default("right_vacuum_gripper_tip_object_kg", "0")) };
 
                     bool has_error = bool.Parse(_get_signal_or_default("has_error", "true"));
@@ -111,15 +111,15 @@ namespace SawyerRobotRaconteurDriver
                     {
                         f |= (uint)ToolStateFlags.enabled;
                     }
-                    
+
                     f |= (uint)ToolStateFlags.ready;
-                    
-                    
+
+
                     if (is_gripping)
                     {
                         f |= (uint)ToolStateFlags.gripping;
                     }
-                    
+
                     if (is_gripping)
                     {
                         o.position = 1;
@@ -131,12 +131,12 @@ namespace SawyerRobotRaconteurDriver
                         o.position = 0;
                         _position = o.position;
                         f |= (uint)ToolStateFlags.opened;
-                    }                    
+                    }
                     o.tool_state_flags = f;
                 }
 
                 rr_tool_state = o;
-                
+
             }
         }
 
@@ -157,7 +157,7 @@ namespace SawyerRobotRaconteurDriver
             return o;
         }
 
-        
+
         public override void close()
         {
             ros_csharp_interop.rosmsg.ROSTime t;
@@ -200,7 +200,7 @@ namespace SawyerRobotRaconteurDriver
             }
         }
 
-        
+
         public override void Dispose()
         {
             base.Dispose();
@@ -208,6 +208,6 @@ namespace SawyerRobotRaconteurDriver
 
         }
 
-        
+
     }
 }
