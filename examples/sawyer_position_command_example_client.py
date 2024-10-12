@@ -16,7 +16,7 @@ robot_const = RRN.GetConstants("com.robotraconteur.robotics.robot", c)
 halt_mode = robot_const["RobotCommandMode"]["halt"]
 position_mode = robot_const["RobotCommandMode"]["position_command"]
 
-RobotJointCommand = RRN.GetStructureType("com.robotraconteur.robotics.robot.RobotJointCommand",c)
+RobotJointCommand = RRN.GetStructureType("com.robotraconteur.robotics.robot.RobotJointCommand", c)
 
 c.command_mode = halt_mode
 time.sleep(0.1)
@@ -40,7 +40,7 @@ while (True):
     joint_cmd1 = RobotJointCommand()
     joint_cmd1.seqno = command_seqno
     joint_cmd1.state_seqno = robot_state.seqno
-    joint_cmd1.command = np.array([1,0,0,0,1,0,0])*np.sin(t-t_start)*np.deg2rad(5)
+    joint_cmd1.command = np.array([1, 0, 0, 0, 1, 0, 0]) * np.sin(t - t_start) * np.deg2rad(5)
 
     cmd_w.OutValue = joint_cmd1
 

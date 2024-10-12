@@ -23,7 +23,8 @@ home_mode = robot_const["RobotCommandMode"]["homing"]
 
 try:
     c.command_mode = halt_mode
-except: pass
+except:
+    pass
 
 print(hex(c.robot_state.PeekInValue()[0].robot_state_flags))
 time.sleep(0.1)
@@ -34,4 +35,5 @@ homing = c.home()
 try:
     while True:
         print(homing.Next())
-except RR.StopIterationException: pass
+except RR.StopIterationException:
+    pass

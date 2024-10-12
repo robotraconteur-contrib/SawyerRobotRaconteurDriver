@@ -1,4 +1,4 @@
-﻿// Copyright 2020 Rensselaer Polytechnic Institute
+// Copyright 2020 Rensselaer Polytechnic Institute
 //                Wason Technology, LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,7 @@ namespace SawyerRobotRaconteurDriver
     {
         protected ROSNode _ros_node;
         protected string _ros_ns_prefix;
-                
+
         protected Subscriber<ros_csharp_interop.rosmsg.gen.sensor_msgs.JointState> _joint_states_sub;
         protected Subscriber<RobotAssemblyState> _robot_state_sub;
         protected Subscriber<EndpointState> _endpoint_state_sub;
@@ -69,7 +69,7 @@ namespace SawyerRobotRaconteurDriver
             this._trajectory_error_tol = 1000;
         }
 
-        
+
 
         public override void _start_robot()
         {
@@ -94,14 +94,14 @@ namespace SawyerRobotRaconteurDriver
 
             base._start_robot();
 
-            _ros_node.start_spinner();            
+            _ros_node.start_spinner();
         }
 
-        
+
 
         protected internal void _robot_state_cb(RobotAssemblyState msg)
         {
-            lock(this)
+            lock (this)
             {
                 _last_robot_state = _stopwatch.ElapsedMilliseconds;
 
@@ -179,7 +179,7 @@ namespace SawyerRobotRaconteurDriver
             var joint_ind = new int[_joint_count];
 
             int last_ind = -1;
-            for (int i=0; i<_joint_count; i++)
+            for (int i = 0; i < _joint_count; i++)
             {
                 int last_ind_1 = last_ind + 1;
                 if (last_ind_1 < joint_states.name.Length && joint_states.name[last_ind_1] == _joint_names[i])
@@ -191,7 +191,7 @@ namespace SawyerRobotRaconteurDriver
                 else
                 {
                     bool joint_ind_found = false;
-                    for (int j=0; j<joint_states.name.Length; j++)
+                    for (int j = 0; j < joint_states.name.Length; j++)
                     {
                         if (joint_states.name[j] == _joint_names[i])
                         {
@@ -220,7 +220,7 @@ namespace SawyerRobotRaconteurDriver
                     for (int i = 0; i < _joint_count; i++) _joint_position[i] = joint_states.position[joint_ind[i]];
                     if (_position_command != null)
                     {
-                        for (int i=0; i<_joint_count; i++)
+                        for (int i = 0; i < _joint_count; i++)
                         {
                             if (Math.Abs(_position_command[i] - _joint_position[i]) > _position_command_tol)
                             {
@@ -266,18 +266,18 @@ namespace SawyerRobotRaconteurDriver
                 {
                     _joint_effort = null;
                 }
-            }                    
+            }
         }
 
         protected void _digitital_io_state_cb(string name, DigitalIOState state)
         {
-            lock(this)
+            lock (this)
             {
                 _digital_io_states[name] = state.state != 0;
             }
         }
 
-        
+
         protected override Task _send_disable()
         {
             var msg = new Bool();
@@ -286,7 +286,7 @@ namespace SawyerRobotRaconteurDriver
             return Task.FromResult(0);
         }
 
-       
+
         protected override Task _send_enable()
         {
             var msg = new Bool();
@@ -298,7 +298,7 @@ namespace SawyerRobotRaconteurDriver
 
         protected override Task _send_reset_errors()
         {
-            var msg = new Empty();            
+            var msg = new Empty();
             _set_super_reset_pub.publish(msg);
 
             return Task.FromResult(0);
@@ -333,11 +333,11 @@ namespace SawyerRobotRaconteurDriver
                 return;
             }
         }
-        
-                
+
+
         public override Generator2<com.robotraconteur.action.ActionStatusCode> home()
         {
-            lock(this)
+            lock (this)
             {
                 if (!_enabled || _error || _communication_failure)
                 {
@@ -371,7 +371,7 @@ namespace SawyerRobotRaconteurDriver
                 throw new ValueNotSetException("Signal value not read");
             }
 
-            throw new ArgumentException("Invalid signal name");            
+            throw new ArgumentException("Invalid signal name");
         }
 
         public override async Task async_setf_signal(string signal_name, double[] value_, int timeout = -1)
@@ -426,7 +426,7 @@ namespace SawyerRobotRaconteurDriver
         public async Task AsyncAbort(int timeout = -1)
         {
             await Task.Run(() => parent._sawyer_send_disable());
-            
+
         }
 
         public Task AsyncClose(int timeout = -1)
@@ -436,7 +436,7 @@ namespace SawyerRobotRaconteurDriver
 
         public async Task<ActionStatusCode> AsyncNext(int timeout = -1)
         {
-            lock(this)
+            lock (this)
             {
                 if (done)
                 {
@@ -488,7 +488,7 @@ namespace SawyerRobotRaconteurDriver
                     if (now - func_start_time > 5000)
                     {
                         return ActionStatusCode.running;
-                    }                    
+                    }
                 }
 
                 done = true;
@@ -534,7 +534,7 @@ namespace SawyerRobotRaconteurDriver
         {
             get
             {
-                lock(parent)
+                lock (parent)
                 {
                     if (parent._sawyer_homed)
                     {
